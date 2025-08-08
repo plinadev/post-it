@@ -4,18 +4,67 @@ import SigninPage from "./pages/auth/Signin";
 import { Toaster } from "react-hot-toast";
 import FeedPage from "./pages/Feed";
 import CreateUsernamePage from "./pages/auth/CreateUsername";
+import VerifyEmailPage from "./pages/auth/VerifyEmail";
+import SigninWithPhonePage from "./pages/auth/SigninWithPhone";
+import AuthListener from "./state/user/AuthListener";
+import Loader from "./components/Loader";
+import { useLoadingStore } from "./state/loading/useLoadingState";
+import PublicRoute from "./components/layout/PublicRoute";
+import PrivateRoute from "./components/layout/PrivateRoute";
 
 function App() {
+  const loading = useLoadingStore((state) => state.isLoading);
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/signin" element={<SigninPage />} />
-        <Route path="/create-username" element={<CreateUsernamePage />} />
-        <Route path="/" element={<FeedPage />} />
-      </Routes>
+    <div>
+      {loading && <Loader />}
+      <AuthListener />
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/signup"
+            element={
+              <PublicRoute>
+                <SignupPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/signin"
+            element={
+              <PublicRoute>
+                <SigninPage />
+              </PublicRoute>
+            }
+          />
+          {/* <Route path="/signin-phone" element={<SigninWithPhonePage />} /> */}
+          <Route
+            path="/verify-email"
+            element={
+              <PublicRoute>
+                <VerifyEmailPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/create-username"
+            element={
+              <PrivateRoute>
+                <CreateUsernamePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <FeedPage />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
       <Toaster position="top-right" />
-    </BrowserRouter>
+    </div>
   );
 }
 

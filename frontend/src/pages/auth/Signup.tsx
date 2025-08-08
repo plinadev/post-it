@@ -1,11 +1,13 @@
 import { useState } from "react";
-import type { AuthFormErrors } from "../../types";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
 import GoogleSignInButton from "../../components/GoogleSignInButton";
+import { signUp } from "../../services/authService";
+import toast from "react-hot-toast";
+import validateAuthForm from "../../utils/validateAuthForm";
+import type { AuthFormErrors } from "../../types";
 
 function SignupPage() {
-  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
@@ -14,34 +16,42 @@ function SignupPage() {
 
   const navigate = useNavigate();
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validationErrors = validateAuthForm(email, password, passwordConfirm);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) return;
+
+    try {
+      setLoading(true);
+      const user = await signUp(email, password);
+      if (user) {
+        toast.success("Signed up successfully");
+        navigate("/verify-email");
+      }
+    } catch (error: any) {
+      if (error.code === "auth/email-already-in-use") {
+        setErrors({ email: "Email already in use" });
+      } else {
+        toast.error("Something went wrong!");
+        console.error("Signup error:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex justify-center items-center h-screen p-10 m-2 ">
       <form
         className="space-y-4 w-full max-w-2xl shadow-2xl p-10 rounded-2xl"
-        // onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
       >
         <div className="flex justify-self-center gap-3">
           <h1 className="text-3xl text-center font-semibold">
             SIGN UP TO <span className=" font-black">POST IT</span>
           </h1>
           <img src={logo} alt="hashtag" width={25} />
-        </div>
-        <div>
-          <label className="label">
-            <span className="text-base label-text">Username*</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter unique username"
-            className="w-full input input-bordered "
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          {errors.username && (
-            <span className="text-sm text-[var(--color-error)]">
-              {errors.username}
-            </span>
-          )}
         </div>
 
         <div>

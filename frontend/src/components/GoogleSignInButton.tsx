@@ -8,12 +8,12 @@ function GoogleSignInButton() {
 
   const handleSignIn = async () => {
     try {
-      const { user, isNew } = await signInWithGoogle();
-      if (user && !isNew) {
-        toast.success(`Welcome back, ${user.displayName}!`);
+      const user = await signInWithGoogle();
+      if (user && user.username) {
+        toast.success(`Welcome back, ${user.username}!`);
         navigate("/");
-      } else if (user && isNew) {
-        toast.success(`Welcome , ${user.displayName}!`);
+      } else if (user && !user.username) {
+        toast.success(`Welcome , ${user.email}!`);
         navigate("/create-username");
       }
     } catch (error) {

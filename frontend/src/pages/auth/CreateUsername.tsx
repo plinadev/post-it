@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.svg";
-import type { AuthFormErrors } from "../../types";
+// import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import logo from "../../assets/logo.svg";
+// import type { AuthFormErrors } from "../../types";
 
 function CreateUsernamePage() {
-  const [username, setUsername] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<AuthFormErrors>({});
+  // const [username, setUsername] = useState<string>("");
+  // const [loading, setLoading] = useState<boolean>(false);
+  // const [errors, setErrors] = useState<AuthFormErrors>({});
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   return (
     <div className="flex justify-center items-center h-screen p-10 m-2 ">
-      <form
+      {/* <form
         className="space-y-4 w-full max-w-2xl shadow-2xl p-10 rounded-2xl"
         // onSubmit={handleSubmit}
       >
@@ -36,7 +36,7 @@ function CreateUsernamePage() {
           />
           {errors.username && (
             <span className="text-sm text-[var(--color-error)]">
-              {errors.email}
+              {errors.username}
             </span>
           )}
         </div>
@@ -54,7 +54,7 @@ function CreateUsernamePage() {
             )}
           </button>
         </div>
-      </form>
+      </form> */}
     </div>
   );
 }

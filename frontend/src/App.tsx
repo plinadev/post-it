@@ -5,12 +5,15 @@ import { Toaster } from "react-hot-toast";
 import FeedPage from "./pages/Feed";
 import CreateUsernamePage from "./pages/auth/CreateUsername";
 import VerifyEmailPage from "./pages/auth/VerifyEmail";
-import SigninWithPhonePage from "./pages/auth/SigninWithPhone";
 import AuthListener from "./state/user/AuthListener";
 import Loader from "./components/Loader";
 import { useLoadingStore } from "./state/loading/useLoadingState";
 import PublicRoute from "./components/layout/PublicRoute";
 import PrivateRoute from "./components/layout/PrivateRoute";
+import SearchPage from "./pages/Search";
+import CreatePostPage from "./pages/CreatePost";
+import ProfilePage from "./pages/Profile";
+import SettingsPage from "./pages/Settings";
 
 function App() {
   const loading = useLoadingStore((state) => state.isLoading);
@@ -36,7 +39,6 @@ function App() {
               </PublicRoute>
             }
           />
-          {/* <Route path="/signin-phone" element={<SigninWithPhonePage />} /> */}
           <Route
             path="/verify-email"
             element={
@@ -58,6 +60,38 @@ function App() {
             element={
               <PrivateRoute>
                 <FeedPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <PrivateRoute>
+                <SearchPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/create"
+            element={
+              <PrivateRoute>
+                <CreatePostPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <SettingsPage />
               </PrivateRoute>
             }
           />

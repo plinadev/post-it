@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "../../state/user/useAuthStore";
+import Layout from "./Layout";
 interface PrivateRouteProps {
   children: React.ReactNode;
 }
@@ -14,5 +15,5 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
     return <Navigate to="/signin" replace />;
   }
 
-  return children;
+  return <Layout>{children}</Layout>;
 }

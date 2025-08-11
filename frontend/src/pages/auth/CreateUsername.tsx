@@ -26,7 +26,6 @@ function CreateUsernamePage() {
     try {
       setLoading(true);
       const result = await createUsername(username);
-      console.log(result);
       if (result.status === StatusCodes.CREATED) {
         toast.success(result.data.message || "Username set successfully");
         navigate("/profile");

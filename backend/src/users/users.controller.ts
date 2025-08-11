@@ -1,7 +1,18 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Put,
+  Request,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FirebaseAuthGuard } from 'src/firebase/guards/auth.guard';
 import { UsersService } from './users.service';
 import type { RequestWithUser } from 'src/types/request-with-user';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 @UseGuards(FirebaseAuthGuard)
@@ -22,5 +33,14 @@ export class UsersController {
     @Body('username') password: string,
   ) {
     return this.usersService.changePassword(req.user.uid, password);
+  }
+  @Put('me/update')
+  @UseInterceptors(FileInterceptor('avatar'))
+  async updateUser(
+    @Request() req: RequestWithUser,
+    @UploadedFile() avatar: Express.Multer.File,
+    @Body() body: UpdateUserDto,
+  ) {
+    return this.usersService.updateUser(req.user.uid, body, avatar);
   }
 }

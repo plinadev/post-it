@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaLock } from "react-icons/fa6";
 import { changePassword, resetPassword } from "../../services/usersService";
+import { FaExclamationTriangle } from "react-icons/fa";
 
 function PrivacySecuritySection() {
   return (
@@ -11,6 +12,9 @@ function PrivacySecuritySection() {
       </h2>
       <ChangePasswordForm />
       <ForgotPasswordSection />
+      <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+        <FaExclamationTriangle size={15} /> Danger zone
+      </h2>
       <DeleteAccountSection />
     </section>
   );
@@ -192,14 +196,6 @@ function DeleteAccountSection() {
   const [loading, setLoading] = useState(false);
 
   const handleDeleteAccount = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
     setLoading(true);
     try {
       // Call API to delete account
@@ -214,15 +210,45 @@ function DeleteAccountSection() {
   };
 
   return (
-    <div className="max-w-md">
+    <div className=" border-1 p-5 rounded-xl border-error">
       <h3 className="font-semibold mb-3">Delete account</h3>
       <button
-        onClick={handleDeleteAccount}
-        className="btn btn-error"
-        disabled={loading}
+        className="btn btn-error w-[40%]"
+        onClick={() => document.getElementById("my_modal_3")?.showModal()}
       >
-        {loading ? "Deleting..." : "Delete Account"}
+        {loading ? (
+          <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+          "Delete Account"
+        )}
       </button>
+
+      <dialog id="my_modal_3" className="modal">
+        <div className="modal-box ">
+          <form method="dialog" onSubmit={handleDeleteAccount}>
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+          </form>
+          <div className="mb-5">
+            <h3 className="font-bold text-lg">
+              Are you sure you want to delete your account?
+            </h3>
+            <p>This action can not be undone</p>
+          </div>
+          <button
+            className="btn btn-error w-full"
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              "Delete Account"
+            )}
+          </button>
+        </div>
+      </dialog>
     </div>
   );
 }

@@ -65,3 +65,40 @@ export const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, normalizedEmail);
   return { message: `Password reset email was sent to ${normalizedEmail}` };
 };
+
+interface UpdateUserDataParams {
+  username?: string;
+  email?: string;
+  phone?: string;
+  avatarFile?: File;
+}
+
+export const updateUserData = async ({
+  username,
+  email,
+  phone,
+  avatarFile,
+}: UpdateUserDataParams) => {
+  try {
+    const formData = new FormData();
+
+    if (username) formData.append("username", username);
+    if (email) formData.append("email", email);
+    if (phone) formData.append("phone", phone);
+    if (avatarFile) formData.append("avatar", avatarFile);
+
+    const response = await apiClient.put("/users/me/update", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return { status: response.status, data: response.data };
+  } catch (error: any) {
+    console.error(
+      "Error updating user data: ",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

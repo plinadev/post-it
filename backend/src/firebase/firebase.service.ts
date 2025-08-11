@@ -6,7 +6,7 @@ import { ServiceAccount } from 'firebase-admin';
 export class FirebaseService implements OnModuleInit {
   private firebaseApp: admin.app.App;
 
-  async onModuleInit() {
+  onModuleInit() {
     if (!admin.apps.length) {
       try {
         const serviceAccount = JSON.parse(

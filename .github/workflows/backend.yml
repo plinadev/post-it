@@ -33,6 +33,11 @@ jobs:
 
       - name: Build backend
         working-directory: ./backend
+        env:
+          FIREBASE_ADMIN_SDK: ${{ secrets.FIREBASE_ADMIN_SDK }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FRONTEND_ORIGIN: ${{ secrets.FRONTEND_ORIGIN }}
         run: npm run build
 
       - name: Deploy Firebase Functions

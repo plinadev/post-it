@@ -13,7 +13,7 @@ import PrivateRoute from "./components/layout/PrivateRoute";
 import SearchPage from "./pages/Search";
 import CreatePostPage from "./pages/CreatePost";
 import ProfilePage from "./pages/Profile";
-import SettingsPage from "./pages/Settings";
+import SettingsPage from "./pages/settings/Settings";
 
 function App() {
   const loading = useLoadingStore((state) => state.isLoading);

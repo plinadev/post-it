@@ -1,20 +1,53 @@
-// import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import logo from "../../assets/logo.svg";
-// import type { AuthFormErrors } from "../../types";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.svg";
+import type { AuthFormErrors } from "../../types";
+import toast from "react-hot-toast";
+import { createUsername } from "../../services/usersService";
+import { validateUsername } from "../../utils/validateUsername";
+import { StatusCodes } from "http-status-codes";
 
 function CreateUsernamePage() {
-  // const [username, setUsername] = useState<string>("");
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [errors, setErrors] = useState<AuthFormErrors>({});
+  const [username, setUsername] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<AuthFormErrors>({});
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationError = validateUsername(username);
+    if (validationError) {
+      setErrors({ username: validationError });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await createUsername(username);
+      if (result.status === StatusCodes.CREATED) {
+        toast.success(result.data.message || "Username set successfully");
+        navigate("/profile");
+      }
+    } catch (error: any) {
+      console.error(error);
+      if (error.response?.status === StatusCodes.CONFLICT) {
+        setErrors({
+          username: error.response.data.message || "Username already taken",
+        });
+      } else {
+        toast.error(error.response?.data?.message || "Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex justify-center items-center h-screen p-10 m-2 ">
-      {/* <form
+      <form
         className="space-y-4 w-full max-w-2xl shadow-2xl p-10 rounded-2xl"
-        // onSubmit={handleSubmit}
+        onSubmit={handleSubmit}
       >
         <div className="flex justify-self-center gap-3">
           <h1 className="text-3xl text-center font-semibold">
@@ -54,7 +87,7 @@ function CreateUsernamePage() {
             )}
           </button>
         </div>
-      </form> */}
+      </form>
     </div>
   );
 }

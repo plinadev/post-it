@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "./useAuthStore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../lib/firebase.config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useLoadingStore } from "../loading/useLoadingState";
 
 function AuthListener() {
@@ -14,14 +14,25 @@ function AuthListener() {
   useEffect(() => {
     setAuthReady(false);
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let unsubscribeFromFirestore: (() => void) | null = null;
+
+    const unsubscribeFromAuth = onAuthStateChanged(auth, (firebaseUser) => {
       setLoading(true);
 
-      try {
-        if (firebaseUser) {
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const snap = await getDoc(userRef);
+      if (!firebaseUser) {
+        clearUser();
+        setLoading(false);
+        setAuthReady(true);
+        if (unsubscribeFromFirestore) unsubscribeFromFirestore();
+        return;
+      }
 
+      const userRef = doc(db, "users", firebaseUser.uid);
+
+      // Listen for realtime updates in Firestore user doc
+      unsubscribeFromFirestore = onSnapshot(
+        userRef,
+        (snap) => {
           const firestoreData = snap.exists() ? snap.data() : {};
 
           setUser({
@@ -32,18 +43,22 @@ function AuthListener() {
             username: firestoreData.username ?? null,
             createdAt: firestoreData.createdAt ?? null,
           });
-        } else {
+          setLoading(false);
+          setAuthReady(true);
+        },
+        (error) => {
+          console.error("Firestore listener error:", error);
           clearUser();
+          setLoading(false);
+          setAuthReady(true);
         }
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        clearUser();
-      } finally {
-        setLoading(false);
-      }
+      );
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeFromAuth();
+      if (unsubscribeFromFirestore) unsubscribeFromFirestore();
+    };
   }, [setUser, clearUser, setAuthReady, setLoading]);
 
   return null;

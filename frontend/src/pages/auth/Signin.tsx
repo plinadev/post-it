@@ -9,6 +9,7 @@ import {
   sendVerificationCode,
   confirmVerificationCode,
   setupRecaptcha,
+  logOut,
 } from "../../services/authService";
 import { auth } from "../../lib/firebase.config";
 import type { AuthFormErrors } from "../../types";
@@ -44,6 +45,8 @@ function SigninPage() {
       await signIn(email, password);
       if (!auth.currentUser?.emailVerified) {
         toast.error("Please verify your email before signing in");
+        await logOut();
+        navigate("/verify-email");
         return;
       }
       toast.success("Signed in successfully");

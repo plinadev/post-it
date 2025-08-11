@@ -4,9 +4,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 const allowedOrigin =
-  process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_ORIGIN
-    : 'http://localhost:5173';
+  process.env.NODE_ENV === 'development'
+    ? 'http://localhost:5173'
+    : process.env.FRONTEND_ORIGIN;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

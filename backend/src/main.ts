@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 const allowedOrigin =
   process.env.NODE_ENV === 'development'
     ? 'http://localhost:5173'
-    : process.env.FRONTEND_ORIGIN;
+    : 'https://post-it-bbedc.web.app';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

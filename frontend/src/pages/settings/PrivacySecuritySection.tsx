@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { FaLock } from "react-icons/fa6";
-import { changePassword, resetPassword } from "../../services/usersService";
+import {
+  changePassword,
+  deleteUser,
+  resetPassword,
+} from "../../services/usersService";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { StatusCodes } from "http-status-codes";
 
 function PrivacySecuritySection() {
   return (
@@ -194,14 +200,27 @@ function ForgotPasswordSection() {
 
 function DeleteAccountSection() {
   const [loading, setLoading] = useState(false);
+  const modalRef = useRef<HTMLDialogElement>(null);
+  const navigate = useNavigate();
 
-  const handleDeleteAccount = async () => {
+  const openModal = () => {
+    modalRef.current?.showModal();
+  };
+
+  const closeModal = () => {
+    modalRef.current?.close();
+  };
+
+  const handleDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     try {
-      // Call API to delete account
-      await new Promise((r) => setTimeout(r, 1000));
-      toast.success("Account deleted");
-      // Then redirect to homepage or logout user
+      const response = await deleteUser();
+      closeModal();
+      if ((response.status = StatusCodes.OK)) {
+        navigate("/signup");
+        toast.success("Account deleted");
+      }
     } catch {
       toast.error("Failed to delete account");
     } finally {
@@ -210,11 +229,12 @@ function DeleteAccountSection() {
   };
 
   return (
-    <div className=" border-1 p-5 rounded-xl border-error">
+    <div className="border-1 p-5 rounded-xl border-error">
       <h3 className="font-semibold mb-3">Delete account</h3>
       <button
         className="btn btn-error w-[40%]"
-        onClick={() => document.getElementById("my_modal_3")?.showModal()}
+        onClick={openModal}
+        disabled={loading}
       >
         {loading ? (
           <span className="loading loading-spinner loading-sm"></span>
@@ -223,18 +243,25 @@ function DeleteAccountSection() {
         )}
       </button>
 
-      <dialog id="my_modal_3" className="modal">
-        <div className="modal-box ">
-          <form method="dialog" onSubmit={handleDeleteAccount}>
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
+      <dialog ref={modalRef} className="modal">
+        <form
+          method="dialog"
+          className="modal-box"
+          onSubmit={handleDeleteAccount}
+        >
+          <button
+            type="button"
+            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            onClick={closeModal}
+            disabled={loading}
+          >
+            ✕
+          </button>
           <div className="mb-5">
             <h3 className="font-bold text-lg">
               Are you sure you want to delete your account?
             </h3>
-            <p>This action can not be undone</p>
+            <p>This action cannot be undone.</p>
           </div>
           <button
             className="btn btn-error w-full"
@@ -247,10 +274,10 @@ function DeleteAccountSection() {
               "Delete Account"
             )}
           </button>
-        </div>
+        </form>
       </dialog>
     </div>
   );
 }
 
-export default PrivacySecuritySection;
+export default DeleteAccountSection;

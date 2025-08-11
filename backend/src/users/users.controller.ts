@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Post,
   Put,
   Request,
@@ -42,5 +43,9 @@ export class UsersController {
     @Body() body: UpdateUserDto,
   ) {
     return this.usersService.updateUser(req.user.uid, body, avatar);
+  }
+  @Delete('me')
+  async deleteUser(@Request() req: RequestWithUser) {
+    return this.usersService.deleteUser(req.user.uid);
   }
 }

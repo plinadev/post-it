@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -139,6 +140,51 @@ export class UsersService {
 
     return { message: 'User updated successfully', data: updateData };
   }
+
+  async deleteUser(uid: string) {
+    const auth = this.firebaseService.getAuth();
+    const db = this.firebaseService.getFirestore();
+    const storage = this.firebaseService.getStorage();
+
+    // 1. Get user doc from Firestore
+    const userRef = db.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new NotFoundException('User not found');
+    }
+    const userData = userDoc.data();
+
+    // 2. Delete avatar from Storage if exists
+    if (userData?.avatarUrl) {
+      try {
+        const avatarUrl: string = userData.avatarUrl;
+        const bucket = storage.bucket();
+        const bucketName = bucket.name;
+
+        const prefix = `https://storage.googleapis.com/${bucketName}/`;
+        const filePath = avatarUrl.startsWith(prefix)
+          ? avatarUrl.slice(prefix.length)
+          : null;
+
+        if (filePath) {
+          const file = bucket.file(filePath);
+          await file.delete();
+        }
+      } catch (err) {
+        console.warn('Failed to delete avatar from storage:', err);
+      }
+    }
+
+    // 3. Delete Firestore user doc
+    await userRef.delete();
+
+    // 4. Delete Firebase Auth user
+    await auth.deleteUser(uid);
+
+    return { message: 'User account deleted successfully' };
+  }
+
   private async checkUsernameExists(username: string): Promise<boolean> {
     const db = this.firebaseService.getFirestore();
 
@@ -209,9 +255,6 @@ export class UsersService {
       const storage = this.firebaseService.getStorage();
       const bucket = storage.bucket();
 
-      // Extract file path from public URL:
-      // Example URL: https://storage.googleapis.com/<bucket-name>/avatars/uid-timestamp-filename.jpg
-      // We want "avatars/uid-timestamp-filename.jpg"
       const url = new URL(avatarUrl);
       const filePath = decodeURIComponent(
         url.pathname.replace(/^\/[^/]+/, '').substring(1),

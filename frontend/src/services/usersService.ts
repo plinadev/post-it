@@ -102,3 +102,16 @@ export const updateUserData = async ({
     throw error;
   }
 };
+
+export const deleteUser = async () => {
+  try {
+    const response = await apiClient.delete("/users/me");
+    return { status: response.status, data: response.data };
+  } catch (error: any) {
+    console.error(
+      "Error deleting user:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

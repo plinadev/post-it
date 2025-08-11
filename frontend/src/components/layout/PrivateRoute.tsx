@@ -15,6 +15,9 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
   if (!user) {
     return <Navigate to="/signin" replace />;
   }
+   if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
   if (pathname === "/create-username") return children;
 
   return <Layout>{children}</Layout>;

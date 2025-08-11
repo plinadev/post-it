@@ -5,6 +5,8 @@ import { useAuthStore } from "../../state/user/useAuthStore";
 import { updateUserData } from "../../services/usersService";
 import placeholder from "../../assets/placeholder.svg";
 import { validateUsername } from "../../utils/validateUsername";
+import { logOut } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 function UserDataSection() {
   const user = useAuthStore((state) => state.user);
@@ -15,7 +17,7 @@ function UserDataSection() {
   const [email, setEmail] = useState(user?.email || "");
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   // Store original values to compare against
   const [originalValues, setOriginalValues] = useState({
     username: user?.username || "",
@@ -149,6 +151,13 @@ function UserDataSection() {
 
       // Clear avatar selection after successful upload
       setAvatar(null);
+
+      // If email or phone changed, log the user out
+      if (changedFields.email || changedFields.phone) {
+        toast("Your session will end due to critical changes.");
+        await logOut();
+        navigate("/signin");
+      }
     } catch (error: any) {
       toast.error(
         error.response?.data?.message || "Failed to update user data"

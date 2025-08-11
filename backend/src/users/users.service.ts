@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   BadRequestException,
@@ -9,7 +10,6 @@ import {
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserData } from 'src/types/update-user-data';
-import { FirebaseError } from 'node_modules/firebase-admin/lib/utils/error';
 
 @Injectable()
 export class UsersService {
@@ -209,11 +209,8 @@ export class UsersService {
       await auth.getUserByEmail(email);
       // If user is found, email is taken
       throw new ConflictException('Email is already taken');
-    } catch (error) {
-      if (
-        error instanceof FirebaseError &&
-        error.code === 'auth/user-not-found'
-      ) {
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
         return; // email is available
       }
       throw error;
@@ -226,12 +223,9 @@ export class UsersService {
     try {
       await auth.getUserByPhoneNumber(phone);
       throw new ConflictException('Phone number is already taken');
-    } catch (error) {
-      if (
-        error instanceof FirebaseError &&
-        error.code === 'auth/user-not-found'
-      ) {
-        return; // phone is available
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        return;
       }
       throw error;
     }

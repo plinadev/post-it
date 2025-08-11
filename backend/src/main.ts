@@ -3,19 +3,25 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
-const allowedOrigin =
-  process.env.NODE_ENV === 'development'
-    ? 'http://localhost:5173'
-    : 'https://post-it-bbedc.web.app';
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://post-it-bbedc.web.app',
+];
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: allowedOrigin, // frontend origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true, // if you use cookies or auth headers
-  });
+app.enableCors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+});
 
   await app.listen(process.env.PORT ?? 3000);
 }

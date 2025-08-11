@@ -5,13 +5,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { FirebaseService } from '../firebase.service';
+import { RequestWithUser } from 'src/types/request-with-user';
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
   constructor(private readonly firebaseService: FirebaseService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
     const authHeader = request.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -25,7 +26,7 @@ export class FirebaseAuthGuard implements CanActivate {
     try {
       const decodedToken = await this.firebaseService
         .getAuth()
-        .verifyIdToken(token, true); // `true` = check revocation
+        .verifyIdToken(token, true);
       request.user = decodedToken;
       return true;
     } catch (err) {

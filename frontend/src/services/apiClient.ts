@@ -2,10 +2,10 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const apiClient = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : import.meta.env.VITE_API_URL,
+  baseURL:"http://localhost:3000"
+    // process.env.NODE_ENV === "development"
+      // ? "http://localhost:3000"
+      // : import.meta.env.VITE_API_URL,
 });
 
 apiClient.interceptors.request.use(

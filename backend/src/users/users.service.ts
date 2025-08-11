@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   BadRequestException,
   ConflictException,
@@ -7,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { getFirestore } from 'firebase-admin/firestore';
+import { UpdateUserData } from 'src/types/update-user-data';
+import { FirebaseError } from 'node_modules/firebase-admin/lib/utils/error';
 
 @Injectable()
 export class UsersService {
@@ -66,10 +68,13 @@ export class UsersService {
         .getAuth()
         .updateUser(uid, { password: newPassword });
       return { message: 'Password updated successfully' };
-    } catch (error: any) {
-      throw new BadRequestException(
-        error.message || 'Failed to update password',
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new BadRequestException(
+          error.message || 'Failed to update password',
+        );
+      }
+      throw new BadRequestException('Failed to update password');
     }
   }
 
@@ -130,7 +135,7 @@ export class UsersService {
 
     // 6. Update Firestore user doc
     const userDocRef = db.collection('users').doc(uid);
-    const updateData: any = {};
+    const updateData: UpdateUserData = {};
     if (dto.username) updateData.username = dto.username;
     if (dto.email) updateData.email = dto.email;
     if (dto.phone) updateData.phone = dto.phone;
@@ -156,7 +161,7 @@ export class UsersService {
     const userData = userDoc.data();
 
     // 2. Delete avatar from Storage if exists
-    if (userData?.avatarUrl) {
+    if (userData?.avatarUrl && typeof userData.avatarUrl === 'string') {
       try {
         const avatarUrl: string = userData.avatarUrl;
         const bucket = storage.bucket();
@@ -201,15 +206,16 @@ export class UsersService {
     const auth = this.firebaseService.getAuth();
 
     try {
-      const user = await auth.getUserByEmail(email);
+      await auth.getUserByEmail(email);
       // If user is found, email is taken
       throw new ConflictException('Email is already taken');
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        // Email is available
-        return;
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        error.code === 'auth/user-not-found'
+      ) {
+        return; // email is available
       }
-      // Propagate other errors
       throw error;
     }
   }
@@ -218,13 +224,14 @@ export class UsersService {
     const auth = this.firebaseService.getAuth();
 
     try {
-      const user = await auth.getUserByPhoneNumber(phone);
-      // Phone is taken
+      await auth.getUserByPhoneNumber(phone);
       throw new ConflictException('Phone number is already taken');
-    } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        // Phone is available
-        return;
+    } catch (error) {
+      if (
+        error instanceof FirebaseError &&
+        error.code === 'auth/user-not-found'
+      ) {
+        return; // phone is available
       }
       throw error;
     }

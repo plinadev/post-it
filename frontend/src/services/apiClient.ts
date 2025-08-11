@@ -5,7 +5,7 @@ const apiClient = axios.create({
   baseURL:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : "https://your-production-api.com",
+      : import.meta.env.VITE_API_URL,
 });
 
 apiClient.interceptors.request.use(

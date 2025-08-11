@@ -280,4 +280,4 @@ function DeleteAccountSection() {
   );
 }
 
-export default DeleteAccountSection;
+export default PrivacySecuritySection;

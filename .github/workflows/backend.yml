@@ -38,9 +38,9 @@ jobs:
       - name: Create .env file for deployment
         working-directory: ./backend
         run: |
-          echo "FIREBASE_ADMIN_SDK=${{ secrets.ADMIN_SDK }}" >> .env
-          echo "FIREBASE_PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
-          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}" >> .env
+          echo "ADMIN_SDK=${{ secrets.ADMIN_SDK }}" >> .env
+          echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> .env
+          echo "STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }}" >> .env
           echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
 
       - name: Deploy Firebase Functions

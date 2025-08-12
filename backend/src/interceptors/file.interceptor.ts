@@ -94,8 +94,7 @@ export class FileInterceptor implements NestInterceptor {
         request.body = fields;
         const data = files.map((file) => {
           delete file.id;
-          // file.stream = new Readable();
-          // file.stream.push(file.buffer);
+
           return file;
         });
 

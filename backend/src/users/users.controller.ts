@@ -12,9 +12,8 @@ import {
 import { FirebaseAuthGuard } from 'src/firebase/guards/auth.guard';
 import { UsersService } from './users.service';
 import type { RequestWithUser } from 'src/types/request-with-user';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/update-user.dto';
-
+import { FileInterceptor } from 'src/interceptors/file.interceptor';
 @Controller('users')
 @UseGuards(FirebaseAuthGuard)
 export class UsersController {
@@ -36,7 +35,11 @@ export class UsersController {
     return this.usersService.changePassword(req.user.uid, password);
   }
   @Put('me/update')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(
+    new FileInterceptor('avatar', 1, {
+      limits: { fieldSize: 10 * 1024 * 1024 },
+    }),
+  )
   async updateUser(
     @Request() req: RequestWithUser,
     @UploadedFile() avatar: Express.Multer.File,
@@ -44,6 +47,7 @@ export class UsersController {
   ) {
     return this.usersService.updateUser(req.user.uid, body, avatar);
   }
+
   @Delete('me')
   async deleteUser(@Request() req: RequestWithUser) {
     return this.usersService.deleteUser(req.user.uid);

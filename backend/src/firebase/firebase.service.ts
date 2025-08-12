@@ -9,14 +9,25 @@ export class FirebaseService implements OnModuleInit {
   onModuleInit() {
     if (!admin.apps.length) {
       try {
-        const serviceAccount = JSON.parse(
-          process.env.FIREBASE_ADMIN_SDK as string,
-        ) as ServiceAccount;
+        const adminSdkJson = process.env.ADMIN_SDK;
+        if (!adminSdkJson) {
+          throw new Error('FIREBASE_ADMIN_SDK environment variable is not set');
+        }
+
+        const serviceAccount = JSON.parse(adminSdkJson) as ServiceAccount;
+        const projectId = process.env.PROJECT_ID;
+        const storageBucket = process.env.STORAGE_BUCKET;
+
+        if (!projectId || !storageBucket) {
+          throw new Error(
+            'Firebase environment variables are not properly configured',
+          );
+        }
+
         this.firebaseApp = admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
-
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+          projectId: projectId,
+          storageBucket: storageBucket,
         });
 
         console.log('Firebase Admin initialized successfully!');

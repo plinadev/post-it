@@ -81,17 +81,11 @@ export const updateUserData = async ({
 }: UpdateUserDataParams) => {
   try {
     const formData = new FormData();
-
     if (username) formData.append("username", username);
     if (email) formData.append("email", email);
     if (phone) formData.append("phone", phone);
     if (avatarFile) formData.append("avatar", avatarFile);
-
-    const response = await apiClient.put("/users/me/update", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const response = await apiClient.put("/users/me/update", formData);
 
     return { status: response.status, data: response.data };
   } catch (error: any) {

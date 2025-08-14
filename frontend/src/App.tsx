@@ -15,9 +15,9 @@ import PrivateRoute from "./components/layout/PrivateRoute";
 import SearchPage from "./pages/Search";
 import ProfilePage from "./pages/profile/Profile";
 import SettingsPage from "./pages/settings/Settings";
-import CreatePostPage from "./pages/create-post/createPost";
 import EditPostPage from "./pages/edit-post/EditPost";
 import ScrollToTop from "./components/ScrollToTop";
+import CreatePostPage from "./pages/create-post/CreatePost";
 
 const queryClient = new QueryClient({
   defaultOptions: {

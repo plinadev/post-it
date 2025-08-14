@@ -1,6 +1,6 @@
 import { FaPen } from "react-icons/fa6";
 
-export const EmptyPosts = ({ username }: { username: string }) => {
+export const EmptyPosts = ({ username }: { username: string | undefined }) => {
   return (
     <div className="text-center py-16">
       <div className="max-w-md mx-auto">

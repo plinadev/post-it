@@ -16,6 +16,7 @@ import { FirebaseAuthGuard } from 'src/firebase/guards/auth.guard';
 import type { RequestWithUser } from 'src/types/request-with-user';
 import { CreatePostDto } from './dto/create-post.dto';
 import { FileInterceptor } from 'src/interceptors/file.interceptor';
+import { EditPostDto } from './dto/edit-post.dto';
 
 @Controller('posts')
 @UseGuards(FirebaseAuthGuard)
@@ -46,7 +47,7 @@ export class PostsController {
   async editPost(
     @Req() req: RequestWithUser,
     @Param('postId') postId: string,
-    @Body() dto: Partial<CreatePostDto>,
+    @Body() dto: Partial<EditPostDto>,
     @UploadedFile() photo?: Express.Multer.File,
   ) {
     const userId = req.user.uid;

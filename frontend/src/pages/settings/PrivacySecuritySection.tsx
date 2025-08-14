@@ -9,6 +9,7 @@ import {
 import { FaExclamationTriangle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { StatusCodes } from "http-status-codes";
+import { ConfirmModal } from "../../components/ConfirmModalProps";
 
 function PrivacySecuritySection() {
   return (
@@ -200,23 +201,12 @@ function ForgotPasswordSection() {
 
 function DeleteAccountSection() {
   const [loading, setLoading] = useState(false);
-  const modalRef = useRef<HTMLDialogElement>(null);
   const navigate = useNavigate();
 
-  const openModal = () => {
-    modalRef.current?.showModal();
-  };
-
-  const closeModal = () => {
-    modalRef.current?.close();
-  };
-
-  const handleDeleteAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleDeleteAccount = async () => {
     setLoading(true);
     try {
       const response = await deleteUser();
-      closeModal();
       if ((response.status = StatusCodes.OK)) {
         navigate("/signup");
         toast.success("Account deleted");
@@ -231,51 +221,23 @@ function DeleteAccountSection() {
   return (
     <div className="border-1 p-5 rounded-xl border-error">
       <h3 className="font-semibold mb-3">Delete account</h3>
-      <button
-        className="btn btn-error w-[40%]"
-        onClick={openModal}
-        disabled={loading}
-      >
-        {loading ? (
-          <span className="loading loading-spinner loading-sm"></span>
-        ) : (
-          "Delete Account"
-        )}
-      </button>
-
-      <dialog ref={modalRef} className="modal">
-        <form
-          method="dialog"
-          className="modal-box"
-          onSubmit={handleDeleteAccount}
-        >
-          <button
-            type="button"
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={closeModal}
-            disabled={loading}
-          >
-            ✕
-          </button>
-          <div className="mb-5">
-            <h3 className="font-bold text-lg">
-              Are you sure you want to delete your account?
-            </h3>
-            <p>This action cannot be undone.</p>
-          </div>
-          <button
-            className="btn btn-error w-full"
-            disabled={loading}
-            type="submit"
-          >
+      <ConfirmModal
+        title="Are you sure you want to delete your account?"
+        message="This action cannot be undone."
+        confirmText="Delete Account"
+        confirmClassName="btn btn-error"
+        loading={loading}
+        onConfirm={handleDeleteAccount}
+        trigger={
+          <button className="btn btn-error" disabled={loading}>
             {loading ? (
               <span className="loading loading-spinner loading-sm"></span>
             ) : (
               "Delete Account"
             )}
           </button>
-        </form>
-      </dialog>
+        }
+      />
     </div>
   );
 }

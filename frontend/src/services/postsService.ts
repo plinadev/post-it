@@ -25,13 +25,100 @@ export const createPost = async ({
       "Error creating a post ",
       error.response?.data || error.message
     );
+    throw error;
   }
 };
 
 //edit post
+export const editPost = async ({
+  id,
+  title,
+  content,
+  photoFile,
+  removePhoto,
+}: {
+  id: string;
+  title: string;
+  content: string;
+  photoFile?: File | null;
+  removePhoto: boolean;
+}) => {
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("removePhoto", String(removePhoto));
+    if (photoFile) formData.append("photo", photoFile);
 
+    const response = await apiClient.patch(`/posts/${id}`, formData);
+
+    return { status: response.status, data: response.data as Post };
+  } catch (error: any) {
+    console.error(
+      "Error occured while post edit ",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
 //get post by id
-
+export const getPostById = async (postId: string) => {
+  try {
+    const response = await apiClient.get(`/posts/${postId}`);
+    return {
+      status: response.status,
+      data: response.data as {
+        author: {
+          username: string;
+          avatarUrl: string | null;
+        };
+      } & Post,
+    };
+  } catch (error: any) {
+    console.error(
+      "Error fetching post ",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
 //get all posts by user id
+export const getAllPostsByUserId = async (userId: string) => {
+  try {
+    const response = await apiClient.get(`/posts/user/${userId}`);
+    return {
+      status: response.status,
+      data: response.data as {
+        author: {
+          username: string;
+          avatarUrl: string | null;
+        };
+        postsCount: number;
+        posts: Post[];
+      },
+    };
+  } catch (error: any) {
+    console.error(
+      "Error fetching posts ",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
 
 //delete post
+export const deletePost = async (id: string) => {
+  try {
+    const response = await apiClient.delete(`/posts/${id}`);
+    return {
+      status: response.status,
+      message: response.data.message,
+    };
+  } catch (error: any) {
+    console.error(
+      "Error deleting post ",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

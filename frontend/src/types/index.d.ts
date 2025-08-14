@@ -19,6 +19,7 @@ export type User = {
 
 export type Post = {
   id: string;
+  authorId: string;
   author: {
     username: string;
     avatarUrl: string | null;
@@ -26,8 +27,8 @@ export type Post = {
   title: string;
   content: string;
   photoUrl?: string | null;
-  createdAt: string;
-  updatedAt?: string;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
   edited: boolean;
   likesCount: number;
   dislikesCount: number;

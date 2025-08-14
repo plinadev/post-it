@@ -13,9 +13,11 @@ import { useLoadingStore } from "./state/loading/useLoadingState";
 import PublicRoute from "./components/layout/PublicRoute";
 import PrivateRoute from "./components/layout/PrivateRoute";
 import SearchPage from "./pages/Search";
-import CreatePostPage from "./pages/create-post/CreatePost";
-import ProfilePage from "./pages/Profile";
+import ProfilePage from "./pages/profile/Profile";
 import SettingsPage from "./pages/settings/Settings";
+import CreatePostPage from "./pages/create-post/createPost";
+import EditPostPage from "./pages/edit-post/EditPost";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +35,7 @@ function App() {
         {loading && <Loader />}
         <AuthListener />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route
               path="/signup"
@@ -91,7 +94,15 @@ function App() {
               }
             />
             <Route
-              path="/profile"
+              path="post/:postId/edit"
+              element={
+                <PrivateRoute>
+                  <EditPostPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile/:userId"
               element={
                 <PrivateRoute>
                   <ProfilePage />

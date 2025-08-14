@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -8,6 +9,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import * as path from 'path';
 import * as admin from 'firebase-admin';
 import { Post } from 'src/types/post';
+import { EditPostDto } from './dto/edit-post.dto';
 
 type FirestoreUser = {
   username?: string;
@@ -56,46 +58,52 @@ export class PostsService {
   async editPost(
     userId: string,
     postId: string,
-    dto: Partial<CreatePostDto>,
+    dto: Partial<EditPostDto>,
     photo?: Express.Multer.File,
   ) {
     const db = this.firebaseService.getFirestore();
-
-    // 1. Fetch post
     const postRef = db.collection('posts').doc(postId);
+    const removePhoto = dto.removePhoto === 'true';
     const postSnap = await postRef.get();
-
-    if (!postSnap.exists) {
-      throw new NotFoundException('Post not found');
-    }
+    if (!postSnap.exists) throw new NotFoundException('Post not found');
 
     const postData = postSnap.data() as Post;
-    if (postData.authorId !== userId) {
-      throw new ForbiddenException('You are not allowed to edit this post');
+    if (postData.authorId !== userId)
+      throw new ForbiddenException('Not allowed');
+
+    // Prevent conflicting actions
+    if (photo && removePhoto) {
+      console.log(dto.removePhoto);
+      throw new BadRequestException(
+        'Cannot upload and remove photo simultaneously',
+      );
     }
 
     let updatedPhotoUrl = postData.photoUrl || null;
 
-    // 2. Handle new photo upload
+    // Handle new photo upload
     if (photo) {
-      // Delete old photo if exists
-      if (postData.photoUrl) {
-        await this.deletePhoto(postData.photoUrl);
+      if (!photo.mimetype.startsWith('image/')) {
+        throw new BadRequestException('Invalid file type');
       }
-
+      if (postData.photoUrl) await this.deletePhoto(postData.photoUrl);
       updatedPhotoUrl = await this.savePhoto(userId, postId, photo);
     }
+    // Handle photo deletion
+    else if (removePhoto && postData.photoUrl) {
+      await this.deletePhoto(postData.photoUrl);
+      updatedPhotoUrl = null;
+    }
 
-    // 3. Prepare updated data
+    // Prepare update
     const updateData: Partial<Post> = {
       edited: true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
     if (dto.title) updateData.title = dto.title;
     if (dto.content) updateData.content = dto.content;
-    if (photo) updateData.photoUrl = updatedPhotoUrl;
+    if (photo || dto.removePhoto) updateData.photoUrl = updatedPhotoUrl;
 
-    // 4. Update in Firestore
     await postRef.update(updateData);
 
     return {
@@ -227,8 +235,8 @@ export class PostsService {
       contentType: file.mimetype,
       public: true,
     });
-
-    return `https://storage.googleapis.com/${bucket.name}/${encodeURIComponent(storagePath)}`;
+    await storageFile.makePublic();
+    return `https://storage.googleapis.com/${bucket.name}/${encodeURIComponent(storagePath)}?v=${Date.now()}`;
   }
 
   private async deletePhoto(photoUrl: string) {

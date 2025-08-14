@@ -3,14 +3,17 @@ import logo from "../assets/logo.svg";
 import { FaSearch } from "react-icons/fa";
 import LogoutButton from "./LogoutButton";
 import { Link, useLocation } from "react-router-dom";
+import { useAuthStore } from "../state/user/useAuthStore";
 
 function SidebarMenu() {
   const { pathname } = useLocation();
+  const user = useAuthStore((state) => state.user);
+
   const menuItems = [
     { icon: <FaHouse />, to: "/" },
     { icon: <FaSearch />, to: "/search" },
     { icon: <FaPlus />, to: "/create", special: true },
-    { icon: <FaUser />, to: "/profile" },
+    { icon: <FaUser />, to: `/profile/${user?.uid}` },
     { icon: <FaGear />, to: "/settings" },
   ];
 

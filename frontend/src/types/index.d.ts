@@ -16,6 +16,25 @@ export type User = {
   username: string | null;
   createdAt: Timestamp;
 };
+
+export type Post = {
+  id: string;
+  authorId: string;
+  author: {
+    username: string;
+    avatarUrl: string | null;
+  };
+  title: string;
+  content: string;
+  photoUrl?: string | null;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  edited: boolean;
+  likesCount: number;
+  dislikesCount: number;
+  commentsCount: number;
+};
+
 declare global {
   interface Window {
     recaptchaVerifier: firebase.auth.RecaptchaVerifier;

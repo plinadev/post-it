@@ -18,6 +18,7 @@ import SettingsPage from "./pages/settings/Settings";
 import EditPostPage from "./pages/edit-post/EditPost";
 import ScrollToTop from "./components/ScrollToTop";
 import CreatePostPage from "./pages/create-post/CreatePost";
+import PostPage from "./pages/post/PostPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CreatePostPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="post/:postId"
+              element={
+                <PrivateRoute>
+                  <PostPage />
                 </PrivateRoute>
               }
             />

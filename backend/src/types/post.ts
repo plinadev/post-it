@@ -12,3 +12,4 @@ export type Post = Partial<{
   dislikesCount: number;
   commentsCount: number;
 }>;
+

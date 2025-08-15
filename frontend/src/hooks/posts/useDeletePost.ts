@@ -12,6 +12,8 @@ export const useDeletePost = () => {
     mutationFn: deletePostApi,
     onSuccess: () => {
       toast.success("Post was successfully deleted!");
+      queryClient.invalidateQueries({ queryKey: ["posts"], exact: false });
+
       queryClient.invalidateQueries({ queryKey: ["profile"], exact: false });
     },
     onError: () => {

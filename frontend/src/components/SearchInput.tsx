@@ -3,7 +3,6 @@ import { FaSearch } from "react-icons/fa";
 import { useSearchParams } from "react-router-dom";
 import { useSuggestions } from "../hooks/posts/useSuggestions";
 import { parseHighlightedText } from "../utils/parseHighlightedTest";
-import Loader from "./Loader";
 import { SearchSuggestionsSkeleton } from "./SearchSuggestionsSkeleton";
 
 export default function SearchInput() {
@@ -81,7 +80,7 @@ export default function SearchInput() {
 
           {!isFetching &&
             !error &&
-            suggestions.map((sug) => (
+            suggestions.map((sug: any) => (
               <li
                 key={sug.id}
                 className="px-4 py-2 hover:bg-base-200 cursor-pointer"

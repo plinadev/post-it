@@ -5,24 +5,9 @@ import { usePosts } from "../hooks/posts/usePosts";
 import { PostsSkeleton } from "../components/PostsSkeleton";
 import type { Post } from "../types";
 import { PostCard } from "../components/Post";
-import { FaPen } from "react-icons/fa6";
 import { useSearchParams } from "react-router-dom";
-
-function EmptyState() {
-  return (
-    <div className="text-center py-16">
-      <div className="max-w-md mx-auto">
-        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-base-200 flex items-center justify-center">
-          <FaPen className="text-base-content/40" size={25} />
-        </div>
-        <h3 className="text-2xl font-semibold text-base-content mb-3">
-          No posts yet
-        </h3>
-        <p className="text-base-content/60 text-lg">Check back later!</p>
-      </div>
-    </div>
-  );
-}
+import SearchInput from "../components/SearchInput";
+import { FaSearch } from "react-icons/fa";
 
 export default function FeedPage() {
   const user = useAuthStore((state) => state.user);
@@ -41,15 +26,18 @@ export default function FeedPage() {
     setSearchParams(searchParams, { replace: true });
   };
 
+  if (error && !isFetching) {
+    return (
+      <div className="alert alert-error shadow-lg max-w-4xl mx-auto ">
+        <span>Error loading feed. Please try again later.</span>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <SearchInput />
       {isFetching && <PostsSkeleton />}
-
-      {error && !isFetching && (
-        <div className="alert alert-error shadow-lg">
-          <span>Error loading feed. Please try again later.</span>
-        </div>
-      )}
 
       {!isFetching && !error && (
         <>
@@ -88,10 +76,25 @@ export default function FeedPage() {
               )}
             </>
           ) : (
-            <EmptyState />
+            <PostsNotFound />
           )}
         </>
       )}
+    </div>
+  );
+}
+function PostsNotFound() {
+  return (
+    <div className="text-center py-16">
+      <div className="max-w-md mx-auto">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-base-200 flex items-center justify-center">
+          <FaSearch className="text-base-content/40" size={25} />
+        </div>
+        <h3 className="text-2xl font-semibold text-base-content mb-3">
+          No posts yet
+        </h3>
+        <p className="text-base-content/60 text-lg">Check back later!</p>
+      </div>
     </div>
   );
 }

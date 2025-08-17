@@ -12,7 +12,6 @@ import Loader from "./components/Loader";
 import { useLoadingStore } from "./state/loading/useLoadingState";
 import PublicRoute from "./components/layout/PublicRoute";
 import PrivateRoute from "./components/layout/PrivateRoute";
-import SearchPage from "./pages/Search";
 import ProfilePage from "./pages/profile/Profile";
 import SettingsPage from "./pages/settings/Settings";
 import EditPostPage from "./pages/edit-post/EditPost";
@@ -78,14 +77,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/search"
-              element={
-                <PrivateRoute>
-                  <SearchPage />
-                </PrivateRoute>
-              }
-            />
+
             <Route
               path="/create"
               element={

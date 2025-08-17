@@ -23,6 +23,14 @@ import { EditPostDto } from './dto/edit-post.dto';
 @UseGuards(FirebaseAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+  
+  @Get('suggestions')
+  async getSuggestions(
+    @Query('q') query: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.postsService.getSearchSuggestions(query, limit);
+  }
 
   @Post()
   @UseInterceptors(
@@ -69,6 +77,7 @@ export class PostsController {
   ) {
     return this.postsService.getAllPosts(search, Number(page), Number(limit));
   }
+
   @Get('user/:userId')
   async getPostsByUserId(@Param('userId') userId: string) {
     return this.postsService.getPostsByUserId(userId);

@@ -144,7 +144,6 @@ export class PostsService {
 
   async getPostById(postId: string) {
     const db = this.firebaseService.getFirestore();
-
     // 1. Get the post
     const postRef = db.collection('posts').doc(postId);
     const postSnap = await postRef.get();
@@ -304,42 +303,40 @@ export class PostsService {
         ],
       });
 
-      // Now `searchResult` is properly typed
       const searchResult: any = result.results[0];
 
-      // Explicitly tell TypeScript that hits is PostHit[]
       const hits = searchResult.hits as PostHit[];
-      console.log(hits);
-      // Get unique author IDs
+
       const authorIds: string[] = Array.from(
         new Set(
           hits.map((hit) => hit.authorId).filter((id): id is string => !!id), // type guard + remove falsy
         ),
       );
-      // Populate with author data from Firestore
+
       const authorsData = await this.getAuthorsByIds(authorIds);
 
-      // Combine search results with author data
       const populatedPosts = searchResult.hits.map(
         (hit: {
-          objectID: any;
-          title: any;
-          content: any;
-          photoUrl: any;
-          createdAt: any;
-          updatedAt: any;
-          edited: any;
-          likesCount: any;
-          dislikesCount: any;
-          commentsCount: any;
-          authorId: string | number;
+          objectID: string;
+          title: string;
+          content: string;
+          photoUrl?: string;
+          createdAt: number | string;
+          updatedAt?: number | string;
+          edited?: boolean;
+          likesCount?: number;
+          dislikesCount?: number;
+          commentsCount?: number;
+          authorId: string;
         }) => ({
           id: hit.objectID,
           title: hit.title,
           content: hit.content,
-          photoUrl: hit.photoUrl,
-          createdAt: hit.createdAt.toDate().toISOString(),
-          updatedAt: hit.updatedAt.toDate().toISOString(),
+          photoUrl: hit.photoUrl || null,
+          createdAt: this.toFirestoreTimestamp(hit.createdAt),
+          updatedAt: hit.updatedAt
+            ? this.toFirestoreTimestamp(hit.updatedAt)
+            : null,
           edited: hit.edited || false,
           likesCount: hit.likesCount || 0,
           dislikesCount: hit.dislikesCount || 0,
@@ -360,10 +357,43 @@ export class PostsService {
       };
     } catch (error) {
       console.error('Algolia search error:', error);
-      // Fallback to Firestore if Algolia fails
+
       return await this.getAllPostsFirestore(search, page, limit);
     }
   }
+
+  async getSearchSuggestions(query: string, limit = 5) {
+    try {
+      const result = await this.client.search({
+        requests: [
+          {
+            indexName: this.indexName,
+            query,
+            hitsPerPage: limit,
+            attributesToRetrieve: ['title', 'content'],
+            attributesToHighlight: ['title', 'content'],
+            highlightPreTag: '<bold>',
+            highlightPostTag: '</bold>',
+          },
+        ],
+      });
+
+      const searchResult: any = result.results[0];
+      return {
+        suggestions: searchResult.hits.map((hit: any) => ({
+          id: hit.objectID,
+          title: hit._highlightResult?.title?.value || hit.title,
+          snippet:
+            hit._highlightResult?.content?.value ||
+            hit.content?.substring(0, 100),
+        })),
+      };
+    } catch (error) {
+      console.error('Algolia suggestions error:', error);
+      throw new Error('Failed to get search suggestions');
+    }
+  }
+
   private async getAuthorsByIds(
     authorIds: string[],
   ): Promise<Record<string, FirestoreUser>> {
@@ -476,5 +506,24 @@ export class PostsService {
       page,
       totalPages: Math.ceil(total / limit),
     };
+  }
+
+  private toFirestoreTimestamp(value: any) {
+    let date: Date;
+
+    if (value instanceof Date) {
+      date = value;
+    } else if (typeof value === 'string') {
+      date = new Date(value); // ISO string
+    } else if (typeof value === 'number') {
+      date = new Date(value); // millis
+    } else {
+      return null;
+    }
+
+    const seconds = Math.floor(date.getTime() / 1000);
+    const nanoseconds = (date.getTime() % 1000) * 1e6;
+
+    return { _seconds: seconds, _nanoseconds: nanoseconds };
   }
 }

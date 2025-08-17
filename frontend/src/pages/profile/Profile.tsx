@@ -1,7 +1,7 @@
 import { usePostsByUser } from "../../hooks/posts/usePostsByUser";
 import { PostsSkeleton } from "../../components/PostsSkeleton";
 import { PostCard } from "../../components/Post";
-import { ProfileHeaderSkeleton } from "../../components/ProfileHeaderSceleton";
+import { ProfileHeaderSkeleton } from "../../components/ProfileHeaderSkeleton";
 import { EmptyPosts } from "./EmptyPosts";
 import { ProfileHeader } from "./ProfileHeader";
 import { useAuthStore } from "../../state/user/useAuthStore";

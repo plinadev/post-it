@@ -61,6 +61,63 @@ export const editPost = async ({
     throw error;
   }
 };
+
+//get all posts
+export const getAllPosts = async ({
+  search,
+  page = 1,
+  limit = 10,
+}: {
+  search?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  try {
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+
+    const response = await apiClient.get(`/posts?${params.toString()}`);
+
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      "Error fetching posts:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+//get posts suggestions
+export const getSuggestions = async ({
+  q,
+  limit = 5,
+}: {
+  q: string;
+  limit?: number;
+}) => {
+  try {
+    const params = new URLSearchParams();
+    if (q) params.append("q", q);
+    params.append("limit", limit.toString());
+
+    const response = await apiClient.get(
+      `/posts/suggestions?${params.toString()}`
+    );
+    console.log(response.data.suggestions);
+
+    return response.data.suggestions;
+  } catch (error: any) {
+    console.error(
+      "Error fetching suggestions:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 //get post by id
 export const getPostById = async (postId: string) => {
   try {

@@ -11,7 +11,7 @@ import { FirebaseService } from 'src/firebase/firebase.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import * as path from 'path';
 import * as admin from 'firebase-admin';
-import { Post } from 'src/types/post';
+import { Post, PostHit } from 'src/types/post';
 import { EditPostDto } from './dto/edit-post.dto';
 import { algoliasearch, SearchClient } from 'algoliasearch';
 
@@ -19,19 +19,6 @@ type FirestoreUser = {
   username?: string;
   avatarUrl?: string | null;
 };
-export interface PostHit {
-  objectID: string;
-  title: string;
-  content: string;
-  authorId: string;
-  photoUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  edited?: boolean;
-  likesCount?: number;
-  dislikesCount?: number;
-  commentsCount?: number;
-}
 
 export interface Author {
   username: string;

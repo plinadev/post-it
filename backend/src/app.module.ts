@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { FirebaseModule } from './firebase/firebase.module';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
+import { ReactionsModule } from './reactions/reactions.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PostsModule } from './posts/posts.module';
     FirebaseModule,
     UsersModule,
     PostsModule,
+    ReactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

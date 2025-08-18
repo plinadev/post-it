@@ -23,7 +23,7 @@ import { EditPostDto } from './dto/edit-post.dto';
 @UseGuards(FirebaseAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
-  
+
   @Get('suggestions')
   async getSuggestions(
     @Query('q') query: string,

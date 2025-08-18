@@ -12,4 +12,16 @@ export type Post = Partial<{
   dislikesCount: number;
   commentsCount: number;
 }>;
-
+export interface PostHit {
+  objectID: string;
+  title: string;
+  content: string;
+  authorId: string;
+  photoUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  edited?: boolean;
+  likesCount?: number;
+  dislikesCount?: number;
+  commentsCount?: number;
+}

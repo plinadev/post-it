@@ -129,7 +129,7 @@ export class PostsService {
     };
   }
 
-  async getPostById(postId: string) {
+  async getPostById(userId: string, postId: string) {
     const db = this.firebaseService.getFirestore();
     // 1. Get the post
     const postRef = db.collection('posts').doc(postId);
@@ -157,16 +157,20 @@ export class PostsService {
         authorData.avatarUrl = user?.avatarUrl || null;
       }
     }
+    const data = [
+      {
+        id: postSnap.id,
+        ...postData,
+        author: authorData,
+      },
+    ];
 
+    const postsWithReactions = await this.attachUserReactions(data, userId);
     // 3. Return combined data
-    return {
-      id: postSnap.id,
-      ...postData,
-      author: authorData,
-    };
+    return postsWithReactions;
   }
 
-  async getPostsByUserId(userId: string) {
+  async getPostsByUserId(currentUserId: string, userId: string) {
     const db = this.firebaseService.getFirestore();
 
     // 1. Fetch author info
@@ -199,10 +203,14 @@ export class PostsService {
       posts.push({ id: doc.id, ...postData });
     });
 
+    const postsWithReactions = await this.attachUserReactions(
+      posts,
+      currentUserId,
+    );
     return {
       author,
-      postsCount: posts.length,
-      posts,
+      postsCount: postsWithReactions.length,
+      posts: postsWithReactions,
     };
   }
 
@@ -328,6 +336,7 @@ export class PostsService {
           likesCount: hit.likesCount || 0,
           dislikesCount: hit.dislikesCount || 0,
           commentsCount: hit.commentsCount || 0,
+          authorId: hit.authorId,
           author: authorsData[hit.authorId] || {
             username: 'Unknown',
             avatarUrl: null,

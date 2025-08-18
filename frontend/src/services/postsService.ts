@@ -121,9 +121,10 @@ export const getSuggestions = async ({
 export const getPostById = async (postId: string) => {
   try {
     const response = await apiClient.get(`/posts/${postId}`);
+    const data = response.data[0];
     return {
       status: response.status,
-      data: response.data as {
+      data: data as {
         author: {
           username: string;
           avatarUrl: string | null;

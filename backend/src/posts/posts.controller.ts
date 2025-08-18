@@ -65,8 +65,13 @@ export class PostsController {
   }
 
   @Get(':postId')
-  async getPostById(@Param('postId') postId: string) {
-    return this.postsService.getPostById(postId);
+  async getPostById(
+    @Req() req: RequestWithUser,
+    @Param('postId') postId: string,
+  ) {
+    const userId = req.user.uid;
+
+    return this.postsService.getPostById(userId, postId);
   }
 
   @Get()
@@ -87,8 +92,12 @@ export class PostsController {
   }
 
   @Get('user/:userId')
-  async getPostsByUserId(@Param('userId') userId: string) {
-    return this.postsService.getPostsByUserId(userId);
+  async getPostsByUserId(
+    @Req() req: RequestWithUser,
+    @Param('userId') userId: string,
+  ) {
+    const currentUserId = req.user.uid;
+    return this.postsService.getPostsByUserId(currentUserId, userId);
   }
 
   @Delete(':postId')

@@ -9,6 +9,9 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { ReactionsModule } from './reactions/reactions.module';
+import { CommentsService } from './comments/comments.service';
+import { CommentsController } from './comments/comments.controller';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -21,8 +24,9 @@ import { ReactionsModule } from './reactions/reactions.module';
     UsersModule,
     PostsModule,
     ReactionsModule,
+    CommentsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, CommentsController],
+  providers: [AppService, CommentsService],
 })
 export class AppModule {}

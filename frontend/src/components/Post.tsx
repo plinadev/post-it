@@ -1,4 +1,3 @@
-import { PiChatCircle, PiHeart, PiHeartBreak } from "react-icons/pi";
 import placeholder from "../assets/placeholder.svg";
 import type { Post } from "../types";
 import { formatDate } from "../utils/formatDate";
@@ -6,6 +5,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
 import { FaPen, FaTrash } from "react-icons/fa6";
 import { useDeletePost } from "../hooks/posts/useDeletePost";
+import Reactions from "./Reactions";
 
 type Author = {
   username: string;
@@ -144,29 +144,7 @@ export const PostCard = ({
         )}
 
         {/* Post Actions */}
-        <div className="flex items-center gap-3 pt-3 border-t border-base-200 text-stone-500">
-          <div
-            className="flex items-center gap-2 p-1 cursor-pointer hover:bg-base-300 rounded-lg transition ease-in-out duration-300"
-            data-no-nav
-          >
-            <PiHeart size={25} />
-            <span className="text-sm font-medium">{post.likesCount}</span>
-          </div>
-          <div
-            className="flex items-center gap-2 p-1 cursor-pointer hover:bg-base-300 rounded-lg transition ease-in-out duration-300"
-            data-no-nav
-          >
-            <PiHeartBreak size={25} />
-            <span className="text-sm font-medium">{post.dislikesCount}</span>
-          </div>
-          <div
-            className="flex items-center gap-2 p-1 cursor-pointer hover:bg-base-300 rounded-lg transition ease-in-out duration-300"
-            data-no-nav
-          >
-            <PiChatCircle size={25} />
-            <span className="text-sm font-medium">{post.commentsCount}</span>
-          </div>
-        </div>
+        <Reactions post={post} />
       </div>
     </div>
   );

@@ -11,7 +11,7 @@ import { FirebaseService } from 'src/firebase/firebase.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import * as path from 'path';
 import * as admin from 'firebase-admin';
-import { Post } from 'src/types/post';
+import { Post, PostHit } from 'src/types/post';
 import { EditPostDto } from './dto/edit-post.dto';
 import { algoliasearch, SearchClient } from 'algoliasearch';
 
@@ -19,19 +19,6 @@ type FirestoreUser = {
   username?: string;
   avatarUrl?: string | null;
 };
-export interface PostHit {
-  objectID: string;
-  title: string;
-  content: string;
-  authorId: string;
-  photoUrl?: string;
-  createdAt: string;
-  updatedAt: string;
-  edited?: boolean;
-  likesCount?: number;
-  dislikesCount?: number;
-  commentsCount?: number;
-}
 
 export interface Author {
   username: string;
@@ -278,7 +265,7 @@ export class PostsService {
     await bucket.file(oldFilePath).delete({ ignoreNotFound: true });
   }
 
-  async getAllPosts(search?: string, page = 1, limit = 10) {
+  async getAllPosts(userId: string, search?: string, page = 1, limit = 10) {
     try {
       const result = await this.client.search<PostHit>({
         requests: [
@@ -347,9 +334,12 @@ export class PostsService {
           },
         }),
       );
-
+      const postsWithReactions = await this.attachUserReactions(
+        populatedPosts,
+        userId,
+      );
       return {
-        posts: populatedPosts,
+        posts: postsWithReactions,
         total: searchResult.nbHits,
         page: searchResult.page + 1,
         totalPages: searchResult.nbPages,
@@ -360,6 +350,37 @@ export class PostsService {
 
       return await this.getAllPostsFirestore(search, page, limit);
     }
+  }
+  private async attachUserReactions(
+    posts: Post[],
+    userId: string,
+  ): Promise<
+    ((typeof posts)[0] & { userReaction: 'like' | 'dislike' | null })[]
+  > {
+    if (!userId) return posts.map((p) => ({ ...p, userReaction: null }));
+
+    const db = this.firebaseService.getFirestore();
+
+    const reactionSnaps = await db
+      .collection('reactions')
+      .where('userId', '==', userId)
+      .where(
+        'postId',
+        'in',
+        posts.map((p) => p.id),
+      )
+      .get();
+
+    const reactionsMap: Record<string, 'like' | 'dislike'> = {};
+    reactionSnaps.docs.forEach((doc) => {
+      const r = doc.data() as { postId: string; type: 'like' | 'dislike' };
+      reactionsMap[r.postId] = r.type;
+    });
+
+    return posts.map((p) => ({
+      ...p,
+      userReaction: reactionsMap[p.id!] || null,
+    }));
   }
 
   async getSearchSuggestions(query: string, limit = 5) {

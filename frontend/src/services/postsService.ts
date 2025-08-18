@@ -106,7 +106,6 @@ export const getSuggestions = async ({
     const response = await apiClient.get(
       `/posts/suggestions?${params.toString()}`
     );
-    console.log(response.data.suggestions);
 
     return response.data.suggestions;
   } catch (error: any) {

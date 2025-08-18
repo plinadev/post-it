@@ -1,6 +1,7 @@
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 
 export type Post = Partial<{
+  id: string;
   authorId: string;
   title: string;
   content: string;
@@ -11,6 +12,7 @@ export type Post = Partial<{
   likesCount: number;
   dislikesCount: number;
   commentsCount: number;
+  userReaction: 'like' | 'dislike' | null;
 }>;
 export interface PostHit {
   objectID: string;

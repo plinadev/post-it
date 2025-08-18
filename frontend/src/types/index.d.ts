@@ -33,8 +33,16 @@ export type Post = {
   likesCount: number;
   dislikesCount: number;
   commentsCount: number;
+  userReaction: "like" | "dislike" | null;
 };
 
+export type Reaction = {
+  postId: string;
+  userId: string;
+  type: "like" | "dislike";
+  likesCount: number;
+  dislikesCount: number;
+};
 declare global {
   interface Window {
     recaptchaVerifier: firebase.auth.RecaptchaVerifier;

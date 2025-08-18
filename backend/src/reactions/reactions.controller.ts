@@ -27,7 +27,7 @@ export class ReactionsController {
     @Req() req: RequestWithUser,
   ) {
     const userId = req.user.uid;
-    return this.reactionsService.addOrUpdateReaction(userId, postId, 'like');
+    return this.reactionsService.addOrUpdateReaction(userId, postId, 'dislike');
   }
 
   @Delete(':postId')

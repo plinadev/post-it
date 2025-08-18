@@ -49,6 +49,10 @@ export class ReactionsService {
 
         if (type === 'like') likesCount++;
         else if (type === 'dislike') dislikesCount++;
+        
+        t.update(postRef, { likesCount, dislikesCount });
+
+        return { postId, userId, type, likesCount, dislikesCount };
       } else {
         //update existing reaction
         const oldReaction = reactionSnap.data() as Reaction;

@@ -71,11 +71,19 @@ export class PostsController {
 
   @Get()
   async getAllPosts(
+    @Req() req: RequestWithUser,
     @Query('search') search?: string,
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
-    return this.postsService.getAllPosts(search, Number(page), Number(limit));
+    const userId = req.user.uid;
+
+    return this.postsService.getAllPosts(
+      userId,
+      search,
+      Number(page),
+      Number(limit),
+    );
   }
 
   @Get('user/:userId')

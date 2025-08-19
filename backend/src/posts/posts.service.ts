@@ -143,7 +143,7 @@ export class PostsService {
 
     // 2. Get the author info
     const authorData: FirestoreUser = {
-      username: 'Unknown',
+      username: '[unknown]',
       avatarUrl: null,
     };
 
@@ -153,7 +153,7 @@ export class PostsService {
 
       if (userSnap.exists) {
         const user = userSnap.data() as FirestoreUser;
-        authorData.username = user?.username || 'Unknown';
+        authorData.username = user?.username || '[unknown]';
         authorData.avatarUrl = user?.avatarUrl || null;
       }
     }
@@ -180,13 +180,13 @@ export class PostsService {
     type FirestoreUser = { username?: string; avatarUrl?: string | null };
 
     const author: FirestoreUser = {
-      username: 'Unknown',
+      username: '[unknown]',
       avatarUrl: null,
     };
 
     if (userSnap.exists) {
       const user = userSnap.data() as FirestoreUser;
-      author.username = user.username ?? 'Unknown';
+      author.username = user.username ?? '[unknown]';
       author.avatarUrl = user.avatarUrl ?? null;
     }
 
@@ -338,7 +338,7 @@ export class PostsService {
           commentsCount: hit.commentsCount || 0,
           authorId: hit.authorId,
           author: authorsData[hit.authorId] || {
-            username: 'Unknown',
+            username: '[unknown]',
             avatarUrl: null,
           },
         }),
@@ -440,7 +440,7 @@ export class PostsService {
     snapshot.forEach((doc) => {
       const data = doc.data() as FirestoreUser;
       authors[doc.id] = {
-        username: data.username || 'Unknown',
+        username: data.username || '[unknown]',
         avatarUrl: data.avatarUrl ?? null,
       };
     });
@@ -525,7 +525,7 @@ export class PostsService {
     const populatedPosts = posts.map((p) => ({
       ...p,
       author: authorsData[p.authorId] || {
-        username: 'Unknown',
+        username: '[unknown]',
         avatarUrl: null,
       },
     }));

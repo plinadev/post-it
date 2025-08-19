@@ -66,7 +66,7 @@ export const editPost = async ({
 export const getAllPosts = async ({
   search,
   page = 1,
-  limit = 10,
+  limit = 5,
 }: {
   search?: string;
   page?: number;

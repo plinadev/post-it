@@ -29,6 +29,7 @@ export const formatDate = (
   }
 
   const mins = differenceInMinutes(now, date);
+  if (mins === 0) return "now";
   if (mins < 60) return `${mins}m`;
 
   const hours = differenceInHours(now, date);

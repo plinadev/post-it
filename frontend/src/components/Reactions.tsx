@@ -11,12 +11,13 @@ import type { Post } from "../types";
 import { useLikePost } from "../hooks/reactions/useLikePost";
 import { useDislikePost } from "../hooks/reactions/useDislikePost";
 import { useRemoveReaction } from "../hooks/reactions/useRemoveReaction";
+import { useNavigate } from "react-router-dom";
 
 function Reactions({ post }: { post: Post }) {
+  const navigate = useNavigate();
   const { likePost, isLiking } = useLikePost();
   const { dislikePost, isDisliking } = useDislikePost();
   const { removeReaction, isRemoving } = useRemoveReaction();
-
   const handleLikeClick = () => {
     likePost(post.id);
   };
@@ -25,6 +26,9 @@ function Reactions({ post }: { post: Post }) {
   };
   const handleRemoveReaction = () => {
     removeReaction(post.id);
+  };
+  const handleGoToPost = () => {
+    navigate(`/post/${post.id}`);
   };
   return (
     <div className="flex items-center gap-3 pt-3 border-t border-base-200 text-stone-500">
@@ -60,7 +64,7 @@ function Reactions({ post }: { post: Post }) {
         className="flex items-center gap-2 p-1 cursor-pointer hover:bg-base-300 rounded-lg transition ease-in-out duration-300"
         data-no-nav
       >
-        <PiChatCircle size={25} />
+        <PiChatCircle size={25} onClick={handleGoToPost} />
         <span className="text-sm font-medium">{post.commentsCount}</span>
       </div>
     </div>

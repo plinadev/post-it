@@ -6,7 +6,7 @@ export const usePosts = () => {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
   const page = Number(searchParams.get("page")) || 1;
-  const limit = Number(searchParams.get("limit")) || 10;
+  const limit = Number(searchParams.get("limit")) || 5;
   const {
     data: posts,
     isFetching,

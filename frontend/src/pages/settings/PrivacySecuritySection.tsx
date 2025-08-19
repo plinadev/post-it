@@ -10,6 +10,7 @@ import { FaExclamationTriangle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { StatusCodes } from "http-status-codes";
 import { ConfirmModal } from "../../components/ConfirmModalProps";
+import { logOut } from "../../services/authService";
 
 function PrivacySecuritySection() {
   return (
@@ -208,6 +209,7 @@ function DeleteAccountSection() {
     try {
       const response = await deleteUser();
       if ((response.status = StatusCodes.OK)) {
+        logOut();
         navigate("/signup");
         toast.success("Account deleted");
       }

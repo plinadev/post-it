@@ -34,7 +34,7 @@ export class CommentsController {
     );
   }
 
-  @Patch()
+  @Patch(':commentId')
   async updateComment(
     @Req() req: RequestWithUser,
     @Param('commentId') commentId: string,
@@ -44,7 +44,7 @@ export class CommentsController {
     return this.commentsService.updateComment(userId, commentId, content);
   }
 
-  @Delete()
+  @Delete(':commentId')
   async deleteComment(
     @Req() req: RequestWithUser,
     @Param('commentId') commentId: string,

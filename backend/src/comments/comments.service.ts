@@ -6,12 +6,12 @@ import {
 import * as admin from 'firebase-admin';
 import { FirebaseService } from 'src/firebase/firebase.service';
 import { Comment } from 'src/types/comment';
+import { FirebaseUser } from 'src/types/userdata';
 
 @Injectable()
 export class CommentsService {
   constructor(private readonly firebaseService: FirebaseService) {}
 
-  // ✅ CREATE
   async createComment(
     userId: string,
     postId: string,
@@ -42,7 +42,10 @@ export class CommentsService {
       }
     }
 
+    const docRef = db.collection('comments').doc();
+
     const newComment: Comment = {
+      id: docRef.id, // include ID
       postId,
       userId,
       content,
@@ -54,14 +57,13 @@ export class CommentsService {
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await db.runTransaction(async (transaction) => {
-      const docRef = db.collection('comments').doc();
       transaction.set(docRef, newComment);
       transaction.update(postRef, {
         commentsCount: admin.firestore.FieldValue.increment(1),
       });
     });
 
-    return { ...newComment };
+    return newComment;
   }
 
   async updateComment(userId: string, commentId: string, content: string) {
@@ -107,18 +109,28 @@ export class CommentsService {
 
     const postRef = db.collection('posts').doc(comment.postId);
 
-    await db.runTransaction(async (transaction) => {
-      const replies = await db
+    // Collect all nested replies recursively
+    async function getAllReplies(
+      id: string,
+    ): Promise<FirebaseFirestore.DocumentSnapshot[]> {
+      const repliesSnap = await db
         .collection('comments')
-        .where('parentId', '==', commentId)
+        .where('parentId', '==', id)
         .get();
+      const replies = repliesSnap.docs;
+      const nested = await Promise.all(replies.map((r) => getAllReplies(r.id)));
+      return [...replies, ...nested.flat()];
+    }
 
+    const allReplies = await getAllReplies(commentId);
+
+    await db.runTransaction(async (transaction) => {
       transaction.delete(commentRef);
-      replies.forEach((reply) => transaction.delete(reply.ref));
+      allReplies.forEach((reply) => transaction.delete(reply.ref));
 
       transaction.update(postRef, {
         commentsCount: admin.firestore.FieldValue.increment(
-          -(1 + replies.size),
+          -(1 + allReplies.length),
         ),
       });
     });
@@ -130,18 +142,43 @@ export class CommentsService {
     const db = this.firebaseService.getFirestore();
 
     const postDoc = await db.collection('posts').doc(postId).get();
-    if (!postDoc.exists)
+    if (!postDoc.exists) {
       throw new NotFoundException(`Post ${postId} not found`);
+    }
 
     const snapshot = await db
       .collection('comments')
       .where('postId', '==', postId)
-      .orderBy('createdAt', 'asc')
+      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    if (snapshot.empty) return [];
+
+    const comments = snapshot.docs.map((doc) => {
+      const data = doc.data() as Comment;
+      return { id: doc.id, ...data };
+    });
+
+    const authorIds = Array.from(new Set(comments.map((c) => c.userId)));
+
+    const userDocs = await db.getAll(
+      ...authorIds.map((id) => db.collection('users').doc(id!)),
+    );
+
+    const usersMap: Record<string, FirebaseUser> = {};
+    userDocs.forEach((doc) => {
+      if (doc.exists) {
+        const data = doc.data() as FirebaseUser;
+        usersMap[doc.id] = {
+          username: data.username,
+          avatarUrl: data.avatarUrl,
+        };
+      }
+    });
+
+    return comments.map((comment) => ({
+      ...comment,
+      author: usersMap[comment.userId!] ?? null,
     }));
   }
 }

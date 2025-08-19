@@ -19,7 +19,7 @@ function PostPage() {
         byMe={user?.uid === postData.authorId}
         isClickable={false}
       />
-      <CommentsSection />
+      <CommentsSection  post={postData}/>
     </div>
   );
 }

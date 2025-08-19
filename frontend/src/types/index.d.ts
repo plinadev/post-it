@@ -43,6 +43,23 @@ export type Reaction = {
   likesCount: number;
   dislikesCount: number;
 };
+
+export type Comment = {
+  id: string;
+  postId: string;
+  userId: string;
+  content: string;
+  edited: boolean;
+  parentId?: string | null;
+  createdAt: Timestamp | FieldValue;
+  updatedAt?: Timestamp | FieldValue | null;
+  author: Author;
+  replies: Comment[];
+};
+type Author = {
+  username: string;
+  avatarUrl?: string | null;
+};
 declare global {
   interface Window {
     recaptchaVerifier: firebase.auth.RecaptchaVerifier;

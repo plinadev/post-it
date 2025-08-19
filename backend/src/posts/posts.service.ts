@@ -129,7 +129,7 @@ export class PostsService {
     };
   }
 
-  async getPostById(postId: string) {
+  async getPostById(userId: string, postId: string) {
     const db = this.firebaseService.getFirestore();
     // 1. Get the post
     const postRef = db.collection('posts').doc(postId);
@@ -143,7 +143,7 @@ export class PostsService {
 
     // 2. Get the author info
     const authorData: FirestoreUser = {
-      username: 'Unknown',
+      username: '[unknown]',
       avatarUrl: null,
     };
 
@@ -153,20 +153,24 @@ export class PostsService {
 
       if (userSnap.exists) {
         const user = userSnap.data() as FirestoreUser;
-        authorData.username = user?.username || 'Unknown';
+        authorData.username = user?.username || '[unknown]';
         authorData.avatarUrl = user?.avatarUrl || null;
       }
     }
+    const data = [
+      {
+        id: postSnap.id,
+        ...postData,
+        author: authorData,
+      },
+    ];
 
+    const postsWithReactions = await this.attachUserReactions(data, userId);
     // 3. Return combined data
-    return {
-      id: postSnap.id,
-      ...postData,
-      author: authorData,
-    };
+    return postsWithReactions;
   }
 
-  async getPostsByUserId(userId: string) {
+  async getPostsByUserId(currentUserId: string, userId: string) {
     const db = this.firebaseService.getFirestore();
 
     // 1. Fetch author info
@@ -176,13 +180,13 @@ export class PostsService {
     type FirestoreUser = { username?: string; avatarUrl?: string | null };
 
     const author: FirestoreUser = {
-      username: 'Unknown',
+      username: '[unknown]',
       avatarUrl: null,
     };
 
     if (userSnap.exists) {
       const user = userSnap.data() as FirestoreUser;
-      author.username = user.username ?? 'Unknown';
+      author.username = user.username ?? '[unknown]';
       author.avatarUrl = user.avatarUrl ?? null;
     }
 
@@ -199,10 +203,14 @@ export class PostsService {
       posts.push({ id: doc.id, ...postData });
     });
 
+    const postsWithReactions = await this.attachUserReactions(
+      posts,
+      currentUserId,
+    );
     return {
       author,
-      postsCount: posts.length,
-      posts,
+      postsCount: postsWithReactions.length,
+      posts: postsWithReactions,
     };
   }
 
@@ -328,8 +336,9 @@ export class PostsService {
           likesCount: hit.likesCount || 0,
           dislikesCount: hit.dislikesCount || 0,
           commentsCount: hit.commentsCount || 0,
+          authorId: hit.authorId,
           author: authorsData[hit.authorId] || {
-            username: 'Unknown',
+            username: '[unknown]',
             avatarUrl: null,
           },
         }),
@@ -431,7 +440,7 @@ export class PostsService {
     snapshot.forEach((doc) => {
       const data = doc.data() as FirestoreUser;
       authors[doc.id] = {
-        username: data.username || 'Unknown',
+        username: data.username || '[unknown]',
         avatarUrl: data.avatarUrl ?? null,
       };
     });
@@ -516,7 +525,7 @@ export class PostsService {
     const populatedPosts = posts.map((p) => ({
       ...p,
       author: authorsData[p.authorId] || {
-        username: 'Unknown',
+        username: '[unknown]',
         avatarUrl: null,
       },
     }));

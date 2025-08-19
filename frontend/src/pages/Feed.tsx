@@ -13,7 +13,7 @@ export default function FeedPage() {
   const user = useAuthStore((state) => state.user);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const limit = Number(searchParams.get("limit")) || 10;
+  const limit = Number(searchParams.get("limit")) || 5;
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
 
   const { posts, isFetching, error } = usePosts();

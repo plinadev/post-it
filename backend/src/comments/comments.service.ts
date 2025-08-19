@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import {
   Injectable,
   NotFoundException,
@@ -45,7 +46,7 @@ export class CommentsService {
     const docRef = db.collection('comments').doc();
 
     const newComment: Comment = {
-      id: docRef.id, // include ID
+      id: docRef.id, 
       postId,
       userId,
       content,
@@ -55,7 +56,7 @@ export class CommentsService {
       edited: false,
     };
 
-    // eslint-disable-next-line @typescript-eslint/require-await
+   
     await db.runTransaction(async (transaction) => {
       transaction.set(docRef, newComment);
       transaction.update(postRef, {
